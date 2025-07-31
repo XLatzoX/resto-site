@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Utensils } from 'lucide-react';
+import { Menu, X, Utensils, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -61,12 +63,21 @@ const Header = () => {
           </nav>
 
           {/* Bouton Réservez */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center space-x-2">
             <Button 
               onClick={() => scrollToSection('reservation')}
               className="btn-primary"
             >
               Réservez
+            </Button>
+            {/* Bouton test admin - à supprimer en production */}
+            <Button
+              onClick={() => navigate('/gestion-restaurant-dakar-admin-2024')}
+              variant="ghost"
+              size="icon"
+              className="opacity-30 hover:opacity-100 transition-opacity"
+            >
+              <Settings className="w-4 h-4" />
             </Button>
           </div>
 
