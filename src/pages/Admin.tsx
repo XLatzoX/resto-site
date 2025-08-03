@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, EyeOff, LogOut, Calendar, Users2, MessageSquare } from 'lucide-react';
+import { Eye, EyeOff, LogOut, Calendar, Users2, MessageSquare, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ReservationsManagement from '@/components/admin/ReservationsManagement';
 import MenuManagement from '@/components/admin/MenuManagement';
 import ReviewsManagement from '@/components/admin/ReviewsManagement';
@@ -15,6 +16,7 @@ const Admin = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
 
   const handleLogin = (e: React.FormEvent) => {
@@ -107,10 +109,16 @@ const Admin = () => {
             <h1 className="text-3xl font-bold text-secondary">Administration AfriSpot</h1>
             <p className="text-muted-foreground">Gestion des réservations et du restaurant</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
-            <LogOut className="w-4 h-4" />
-            Déconnexion
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => navigate('/')} variant="outline" className="flex items-center gap-2">
+              <Home className="w-4 h-4" />
+              Retour au site
+            </Button>
+            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+              <LogOut className="w-4 h-4" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
 
         {/* Onglets de gestion */}
