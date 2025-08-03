@@ -18,13 +18,13 @@ const About = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Grid d'images */}
-          <div className="grid grid-cols-2 gap-4 scroll-reveal">
-            <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 lg:gap-4 scroll-reveal">
+            <div className="space-y-3 lg:space-y-4">
               <div className="relative overflow-hidden rounded-2xl shadow-lg hover-lift">
                 <img 
                   src={dish1} 
                   alt="Plat traditionnel sénégalais"
-                  className="w-full h-64 object-cover hover-scale"
+                  className="w-full h-48 lg:h-56 object-cover hover-scale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
@@ -32,17 +32,17 @@ const About = () => {
                 <img 
                   src={dish3} 
                   alt="Entrées africaines"
-                  className="w-full h-48 object-cover hover-scale"
+                  className="w-full h-36 lg:h-44 object-cover hover-scale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
             </div>
-            <div className="space-y-4 pt-8">
+            <div className="space-y-3 lg:space-y-4 pt-6 lg:pt-8">
               <div className="relative overflow-hidden rounded-2xl shadow-lg hover-lift">
                 <img 
                   src={dish2} 
                   alt="Burger africain"
-                  className="w-full h-48 object-cover hover-scale"
+                  className="w-full h-36 lg:h-44 object-cover hover-scale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
@@ -50,7 +50,7 @@ const About = () => {
                 <img 
                   src={dish4} 
                   alt="Plat traditionnel"
-                  className="w-full h-64 object-cover hover-scale"
+                  className="w-full h-48 lg:h-56 object-cover hover-scale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>

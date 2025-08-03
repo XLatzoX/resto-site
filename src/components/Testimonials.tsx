@@ -5,7 +5,7 @@ import { Quote } from 'lucide-react';
 const Testimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const testimonials = [
+  const baseTestimonials = [
     {
       id: 1,
       name: "Sacky Mall",
@@ -42,6 +42,9 @@ const Testimonials = () => {
       featured: false
     }
   ];
+
+  // Dupliquer les témoignages pour éviter les espaces vides lors du défilement
+  const testimonials = [...baseTestimonials, ...baseTestimonials.map(t => ({ ...t, id: t.id + 10 }))];
 
   useEffect(() => {
     const interval = setInterval(() => {

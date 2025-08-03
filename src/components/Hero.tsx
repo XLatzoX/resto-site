@@ -69,12 +69,12 @@ const Hero = () => {
 
           {/* Image du plat */}
           <div className="relative animate-fade-in-right animate-delay-300">
-            <div className="relative w-full max-w-md mx-auto">
+            <div className="relative w-full max-w-xs lg:max-w-sm mx-auto">
               {/* Cercle de fond */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl transform scale-110"></div>
               
               {/* Image du plat */}
-              <div className="relative bg-white rounded-full p-8 shadow-2xl hover-lift">
+              <div className="relative bg-white rounded-full p-6 lg:p-8 shadow-2xl hover-lift">
                 <img 
                   src={heroImage} 
                   alt="Plat traditionnel sénégalais"
