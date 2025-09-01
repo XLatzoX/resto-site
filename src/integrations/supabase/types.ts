@@ -14,7 +14,173 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      menu_categories: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          available: boolean | null
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          available?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          available?: boolean | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "menu_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          created_at: string | null
+          datetime: string
+          email: string | null
+          guests: number
+          id: string
+          name: string
+          phone: string
+          special_requests: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          datetime: string
+          email?: string | null
+          guests: number
+          id?: string
+          name: string
+          phone: string
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          datetime?: string
+          email?: string | null
+          guests?: number
+          id?: string
+          name?: string
+          phone?: string
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          approved: boolean | null
+          comment: string
+          created_at: string | null
+          email: string | null
+          featured: boolean | null
+          id: string
+          name: string
+          rating: number
+          updated_at: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          comment: string
+          created_at?: string | null
+          email?: string | null
+          featured?: boolean | null
+          id?: string
+          name: string
+          rating: number
+          updated_at?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          comment?: string
+          created_at?: string | null
+          email?: string | null
+          featured?: boolean | null
+          id?: string
+          name?: string
+          rating?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
