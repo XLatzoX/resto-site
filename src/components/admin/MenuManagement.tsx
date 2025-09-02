@@ -1,166 +1,89 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Save, X, Upload } from 'lucide-react';
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  available: boolean;
-  createdAt: string;
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { useMenuItems, MenuItem } from '@/hooks/useMenuItems';
+import { useMenuCategories } from '@/hooks/useMenuCategories';
 
 const MenuManagement = () => {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const { menuItems, loading, addMenuItem, updateMenuItem, deleteMenuItem } = useMenuItems();
+  const { categories } = useMenuCategories();
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [newItem, setNewItem] = useState<Partial<MenuItem>>({
     name: '',
     description: '',
     price: 0,
-    category: 'entrées',
-    image: '',
+    category_id: '',
+    image_url: '',
     available: true
   });
   const [isAdding, setIsAdding] = useState(false);
-  const { toast } = useToast();
-
-  const categories = ['entrées', 'plats', 'desserts', 'boissons'];
-
-  // Charger les données depuis localStorage
-  useEffect(() => {
-    const savedItems = localStorage.getItem('afrispot_menu');
-    if (savedItems) {
-      setMenuItems(JSON.parse(savedItems));
-    } else {
-      // Données d'exemple
-      const mockItems: MenuItem[] = [
-        {
-          id: '1',
-          name: 'Thieboudienne',
-          description: 'Plat traditionnel sénégalais avec poisson et légumes',
-          price: 2500,
-          category: 'plats',
-          image: '/src/assets/dish-1.jpg',
-          available: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Yassa Poulet',
-          description: 'Poulet mariné aux oignons et citron',
-          price: 2000,
-          category: 'plats',
-          image: '/src/assets/dish-2.jpg',
-          available: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Pastels',
-          description: 'Beignets de poisson traditionnels',
-          price: 500,
-          category: 'entrées',
-          image: '/src/assets/dish-3.jpg',
-          available: true,
-          createdAt: new Date().toISOString()
-        }
-      ];
-      setMenuItems(mockItems);
-      localStorage.setItem('afrispot_menu', JSON.stringify(mockItems));
-    }
-  }, []);
-
-  // Sauvegarder dans localStorage
-  const saveToStorage = (items: MenuItem[]) => {
-    localStorage.setItem('afrispot_menu', JSON.stringify(items));
-  };
 
   // Ajouter un plat
-  const handleAddItem = () => {
-    if (!newItem.name || !newItem.description || !newItem.price) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires",
-        variant: "destructive"
-      });
+  const handleAddItem = async () => {
+    if (!newItem.name || !newItem.description || !newItem.price || !newItem.category_id) {
       return;
     }
 
-    const item: MenuItem = {
-      id: Date.now().toString(),
+    await addMenuItem({
       name: newItem.name!,
       description: newItem.description!,
       price: newItem.price!,
-      category: newItem.category!,
-      image: newItem.image || '',
+      category_id: newItem.category_id!,
+      image_url: newItem.image_url || undefined,
       available: newItem.available!,
-      createdAt: new Date().toISOString()
-    };
+    });
 
-    const updatedItems = [...menuItems, item];
-    setMenuItems(updatedItems);
-    saveToStorage(updatedItems);
     setNewItem({
       name: '',
       description: '',
       price: 0,
-      category: 'entrées',
-      image: '',
+      category_id: '',
+      image_url: '',
       available: true
     });
     setIsAdding(false);
-
-    toast({
-      title: "Plat ajouté",
-      description: "Le plat a été ajouté au menu avec succès",
-    });
   };
 
   // Modifier un plat
-  const handleUpdateItem = () => {
+  const handleUpdateItem = async () => {
     if (!editingItem) return;
 
-    const updatedItems = menuItems.map(item => 
-      item.id === editingItem.id ? editingItem : item
-    );
-    setMenuItems(updatedItems);
-    saveToStorage(updatedItems);
-    setEditingItem(null);
-
-    toast({
-      title: "Plat modifié",
-      description: "Le plat a été modifié avec succès",
+    await updateMenuItem(editingItem.id, {
+      name: editingItem.name,
+      description: editingItem.description,
+      price: editingItem.price,
+      category_id: editingItem.category_id,
+      image_url: editingItem.image_url,
+      available: editingItem.available
     });
+
+    setEditingItem(null);
   };
 
   // Supprimer un plat
-  const handleDeleteItem = (id: string) => {
-    const updatedItems = menuItems.filter(item => item.id !== id);
-    setMenuItems(updatedItems);
-    saveToStorage(updatedItems);
-
-    toast({
-      title: "Plat supprimé",
-      description: "Le plat a été supprimé du menu",
-    });
+  const handleDeleteItem = async (id: string) => {
+    await deleteMenuItem(id);
   };
 
   // Basculer la disponibilité
-  const toggleAvailability = (id: string) => {
-    const updatedItems = menuItems.map(item => 
-      item.id === id ? { ...item, available: !item.available } : item
-    );
-    setMenuItems(updatedItems);
-    saveToStorage(updatedItems);
+  const toggleAvailability = async (item: MenuItem) => {
+    await updateMenuItem(item.id, { available: !item.available });
   };
+
+  if (loading) {
+    return <div className="text-center p-8">Chargement...</div>;
+  }
+
+  // Grouper les items par catégorie
+  const itemsByCategory = categories.reduce((acc, category) => {
+    acc[category.id] = menuItems.filter(item => item.category_id === category.id);
+    return acc;
+  }, {} as Record<string, MenuItem[]>);
 
   return (
     <div className="space-y-6">
@@ -202,19 +125,20 @@ const MenuManagement = () => {
               onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
             />
             <div className="grid md:grid-cols-2 gap-4">
-              <select
-                className="w-full p-2 border rounded-md"
-                value={newItem.category}
-                onChange={(e) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
-                ))}
-              </select>
+              <Select onValueChange={(value) => setNewItem(prev => ({ ...prev, category_id: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(cat => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Input
                 placeholder="URL de l'image"
-                value={newItem.image}
-                onChange={(e) => setNewItem(prev => ({ ...prev, image: e.target.value }))}
+                value={newItem.image_url}
+                onChange={(e) => setNewItem(prev => ({ ...prev, image_url: e.target.value }))}
               />
             </div>
             <div className="flex space-x-2">
@@ -233,13 +157,13 @@ const MenuManagement = () => {
 
       {/* Liste des plats par catégorie */}
       {categories.map(category => {
-        const categoryItems = menuItems.filter(item => item.category === category);
+        const categoryItems = itemsByCategory[category.id] || [];
         if (categoryItems.length === 0) return null;
 
         return (
-          <Card key={category}>
+          <Card key={category.id}>
             <CardHeader>
-              <CardTitle className="capitalize">{category} ({categoryItems.length})</CardTitle>
+              <CardTitle className="capitalize">{category.name} ({categoryItems.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -265,8 +189,8 @@ const MenuManagement = () => {
                         />
                         <Input
                           placeholder="URL de l'image"
-                          value={editingItem.image}
-                          onChange={(e) => setEditingItem(prev => prev ? { ...prev, image: e.target.value } : null)}
+                          value={editingItem.image_url || ''}
+                          onChange={(e) => setEditingItem(prev => prev ? { ...prev, image_url: e.target.value } : null)}
                         />
                         <div className="flex space-x-2">
                           <Button onClick={handleUpdateItem} size="sm">
@@ -291,9 +215,9 @@ const MenuManagement = () => {
                             <span className="text-primary font-bold">{item.price} FCFA</span>
                           </div>
                           <p className="text-muted-foreground mb-2">{item.description}</p>
-                          {item.image && (
+                          {item.image_url && (
                             <img 
-                              src={item.image} 
+                              src={item.image_url} 
                               alt={item.name}
                               className="w-20 h-20 object-cover rounded"
                             />
@@ -303,7 +227,7 @@ const MenuManagement = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => toggleAvailability(item.id)}
+                            onClick={() => toggleAvailability(item)}
                           >
                             {item.available ? 'Marquer indisponible' : 'Marquer disponible'}
                           </Button>

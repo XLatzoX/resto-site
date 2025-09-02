@@ -4,30 +4,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Menu, Calendar, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import MenuManagement from '@/components/admin/MenuManagement';
 import ReservationsManagement from '@/components/admin/ReservationsManagement';
 import ReviewsManagement from '@/components/admin/ReviewsManagement';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('menu');
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour au site
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Administration AfriSpot</h1>
-              <p className="text-muted-foreground">Gestion du restaurant</p>
+    <ProtectedRoute requireAdmin={true}>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto p-6">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Retour au site
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Administration AfriSpot</h1>
+                <p className="text-muted-foreground">
+                  Bienvenue, {user?.email} - Gestion du restaurant
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
@@ -89,6 +95,7 @@ const Admin = () => {
         </Tabs>
       </div>
     </div>
+    </ProtectedRoute>
   );
 };
 

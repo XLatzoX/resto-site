@@ -1,72 +1,15 @@
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { Calendar, Phone, Users, MessageCircle } from 'lucide-react';
-
-interface Reservation {
-  id: string;
-  name: string;
-  phone: string;
-  datetime: string;
-  guests: string;
-  requests: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  createdAt: string;
-}
+import { useReservations } from '@/hooks/useReservations';
 
 const ReservationsManagement = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const { toast } = useToast();
+  const { reservations, loading, updateReservationStatus } = useReservations();
 
-  // Mock data pour les réservations
-  useEffect(() => {
-    const mockReservations: Reservation[] = [
-      {
-        id: '1',
-        name: 'Amadou Diallo',
-        phone: '+221 77 123 45 67',
-        datetime: '2024-02-15T19:30',
-        guests: '4',
-        requests: 'Table près de la fenêtre',
-        status: 'pending',
-        createdAt: '2024-02-10T10:30:00'
-      },
-      {
-        id: '2',
-        name: 'Fatou Sall',
-        phone: '+221 78 987 65 43',
-        datetime: '2024-02-16T20:00',
-        guests: '2',
-        requests: 'Anniversaire - dessert spécial',
-        status: 'confirmed',
-        createdAt: '2024-02-11T14:20:00'
-      },
-      {
-        id: '3',
-        name: 'Ousmane Ndiaye',
-        phone: '+221 76 555 44 33',
-        datetime: '2024-02-17T18:45',
-        guests: '6',
-        requests: '',
-        status: 'pending',
-        createdAt: '2024-02-12T09:15:00'
-      }
-    ];
-    setReservations(mockReservations);
-  }, []);
-
-  const updateReservationStatus = (id: string, status: 'confirmed' | 'cancelled') => {
-    setReservations(prev => prev.map(res => 
-      res.id === id ? { ...res, status } : res
-    ));
-    
-    toast({
-      title: "Statut mis à jour",
-      description: `Réservation ${status === 'confirmed' ? 'confirmée' : 'annulée'}`,
-    });
-  };
+  if (loading) {
+    return <div className="text-center p-8">Chargement...</div>;
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -92,6 +35,10 @@ const ReservationsManagement = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleStatusUpdate = async (id: string, status: 'confirmed' | 'cancelled') => {
+    await updateReservationStatus(id, status);
   };
 
   return (
@@ -160,7 +107,7 @@ const ReservationsManagement = () => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-secondary">
-                  {reservations.filter(r => r.requests.length > 0).length}
+                  {reservations.filter(r => r.special_requests && r.special_requests.length > 0).length}
                 </div>
                 <div className="text-sm text-muted-foreground">Avec demandes</div>
               </div>
@@ -182,6 +129,9 @@ const ReservationsManagement = () => {
                   <div>
                     <h3 className="font-semibold text-lg">{reservation.name}</h3>
                     <p className="text-muted-foreground">{reservation.phone}</p>
+                    {reservation.email && (
+                      <p className="text-muted-foreground text-sm">{reservation.email}</p>
+                    )}
                   </div>
                   <Badge className={getStatusColor(reservation.status)}>
                     {getStatusText(reservation.status)}
@@ -198,17 +148,17 @@ const ReservationsManagement = () => {
                     <span className="text-sm">{reservation.guests} personne(s)</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Reçue le {formatDateTime(reservation.createdAt)}
+                    Reçue le {formatDateTime(reservation.created_at)}
                   </div>
                 </div>
 
-                {reservation.requests && (
+                {reservation.special_requests && (
                   <div className="mb-4 p-3 bg-muted/50 rounded">
                     <div className="flex items-start space-x-2">
                       <MessageCircle className="w-4 h-4 text-muted-foreground mt-0.5" />
                       <div>
                         <div className="text-sm font-medium">Demandes spéciales:</div>
-                        <div className="text-sm text-muted-foreground">{reservation.requests}</div>
+                        <div className="text-sm text-muted-foreground">{reservation.special_requests}</div>
                       </div>
                     </div>
                   </div>
@@ -218,7 +168,7 @@ const ReservationsManagement = () => {
                   <div className="flex space-x-2">
                     <Button 
                       size="sm" 
-                      onClick={() => updateReservationStatus(reservation.id, 'confirmed')}
+                      onClick={() => handleStatusUpdate(reservation.id, 'confirmed')}
                       className="bg-green-600 hover:bg-green-700"
                     >
                       Confirmer
@@ -226,7 +176,7 @@ const ReservationsManagement = () => {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => updateReservationStatus(reservation.id, 'cancelled')}
+                      onClick={() => handleStatusUpdate(reservation.id, 'cancelled')}
                       className="border-red-300 text-red-600 hover:bg-red-50"
                     >
                       Annuler
@@ -236,6 +186,12 @@ const ReservationsManagement = () => {
               </div>
             ))}
           </div>
+          
+          {reservations.length === 0 && (
+            <div className="text-center p-8 text-muted-foreground">
+              Aucune réservation trouvée
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

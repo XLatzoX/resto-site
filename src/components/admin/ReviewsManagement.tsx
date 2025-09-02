@@ -1,135 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Trash2, Star, User, Calendar } from 'lucide-react';
-
-interface Review {
-  id: string;
-  name: string;
-  rating: number;
-  comment: string;
-  approved: boolean;
-  featured: boolean;
-  createdAt: string;
-  email?: string;
-}
+import { useReviews } from '@/hooks/useReviews';
 
 const ReviewsManagement = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const { reviews, loading, updateReview, deleteReview } = useReviews();
   const [filter, setFilter] = useState<'all' | 'approved' | 'pending' | 'featured'>('all');
-  const { toast } = useToast();
 
-  // Charger les commentaires depuis localStorage
-  useEffect(() => {
-    const savedReviews = localStorage.getItem('afrispot_reviews');
-    if (savedReviews) {
-      setReviews(JSON.parse(savedReviews));
-    } else {
-      // Données d'exemple
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          name: 'Amadou Diallo',
-          rating: 5,
-          comment: 'Excellent restaurant ! La cuisine authentique sénégalaise est délicieuse. Le thieboudienne était parfait.',
-          approved: true,
-          featured: true,
-          createdAt: '2024-02-10T14:30:00',
-          email: 'amadou@email.com'
-        },
-        {
-          id: '2',
-          name: 'Fatou Sall',
-          rating: 5,
-          comment: 'Ambiance chaleureuse et service impeccable. Je recommande vivement ce lieu pour découvrir la vraie cuisine africaine.',
-          approved: true,
-          featured: true,
-          createdAt: '2024-02-11T16:45:00',
-          email: 'fatou@email.com'
-        },
-        {
-          id: '3',
-          name: 'Jean Pierre',
-          rating: 4,
-          comment: 'Très bon restaurant, les saveurs sont authentiques. Seul bémol, un peu d\'attente mais ça en vaut la peine.',
-          approved: true,
-          featured: false,
-          createdAt: '2024-02-12T12:20:00',
-          email: 'jean@email.com'
-        },
-        {
-          id: '4',
-          name: 'Marie Dubois',
-          rating: 5,
-          comment: 'Découverte fantastique ! Les plats sont savoureux et le personnel très accueillant.',
-          approved: false,
-          featured: false,
-          createdAt: '2024-02-13T18:30:00',
-          email: 'marie@email.com'
-        },
-        {
-          id: '5',
-          name: 'Ousmane Ndiaye',
-          rating: 2,
-          comment: 'Service décevant, plats froids et attente trop longue. Je ne recommande pas.',
-          approved: false,
-          featured: false,
-          createdAt: '2024-02-14T20:15:00',
-          email: 'ousmane@email.com'
-        }
-      ];
-      setReviews(mockReviews);
-      localStorage.setItem('afrispot_reviews', JSON.stringify(mockReviews));
-    }
-  }, []);
-
-  // Sauvegarder dans localStorage
-  const saveToStorage = (reviewsData: Review[]) => {
-    localStorage.setItem('afrispot_reviews', JSON.stringify(reviewsData));
-  };
+  if (loading) {
+    return <div className="text-center p-8">Chargement...</div>;
+  }
 
   // Approuver/désapprouver un commentaire
-  const toggleApproval = (id: string) => {
-    const updatedReviews = reviews.map(review => 
-      review.id === id ? { ...review, approved: !review.approved } : review
-    );
-    setReviews(updatedReviews);
-    saveToStorage(updatedReviews);
-
-    const review = reviews.find(r => r.id === id);
-    toast({
-      title: review?.approved ? "Commentaire désapprouvé" : "Commentaire approuvé",
-      description: review?.approved ? "Le commentaire ne sera plus visible" : "Le commentaire est maintenant visible",
-    });
+  const toggleApproval = async (id: string, currentStatus: boolean) => {
+    await updateReview(id, { approved: !currentStatus });
   };
 
   // Mettre en avant/retirer de la mise en avant
-  const toggleFeatured = (id: string) => {
-    const updatedReviews = reviews.map(review => 
-      review.id === id ? { ...review, featured: !review.featured } : review
-    );
-    setReviews(updatedReviews);
-    saveToStorage(updatedReviews);
-
-    const review = reviews.find(r => r.id === id);
-    toast({
-      title: review?.featured ? "Retiré de la mise en avant" : "Mis en avant",
-      description: review?.featured ? "Le commentaire ne sera plus mis en avant" : "Le commentaire sera affiché en priorité",
-    });
+  const toggleFeatured = async (id: string, currentStatus: boolean) => {
+    await updateReview(id, { featured: !currentStatus });
   };
 
   // Supprimer un commentaire
-  const deleteReview = (id: string) => {
-    const updatedReviews = reviews.filter(review => review.id !== id);
-    setReviews(updatedReviews);
-    saveToStorage(updatedReviews);
-
-    toast({
-      title: "Commentaire supprimé",
-      description: "Le commentaire a été supprimé définitivement",
-    });
+  const handleDeleteReview = async (id: string) => {
+    await deleteReview(id);
   };
 
   // Filtrer les commentaires
@@ -273,7 +169,7 @@ const ReviewsManagement = () => {
                     <h3 className="font-semibold">{review.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <Calendar className="w-3 h-3" />
-                      <span>{formatDate(review.createdAt)}</span>
+                      <span>{formatDate(review.created_at)}</span>
                     </div>
                   </div>
                 </div>
@@ -303,7 +199,7 @@ const ReviewsManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => toggleApproval(review.id)}
+                  onClick={() => toggleApproval(review.id, review.approved)}
                   className={review.approved ? "text-red-600 hover:bg-red-50" : "text-green-600 hover:bg-green-50"}
                 >
                   {review.approved ? (
@@ -322,7 +218,7 @@ const ReviewsManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => toggleFeatured(review.id)}
+                  onClick={() => toggleFeatured(review.id, review.featured)}
                   className={review.featured ? "text-orange-600 hover:bg-orange-50" : "text-blue-600 hover:bg-blue-50"}
                 >
                   <Star className={`w-4 h-4 mr-1 ${review.featured ? 'fill-current' : ''}`} />
@@ -332,7 +228,7 @@ const ReviewsManagement = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => deleteReview(review.id)}
+                  onClick={() => handleDeleteReview(review.id)}
                   className="text-red-600 hover:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
