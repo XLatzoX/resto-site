@@ -8,7 +8,6 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<{ error?: any }>;
   signOut: () => Promise<{ error?: any }>;
   isAdmin: boolean;
 }
@@ -89,33 +88,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: metadata
-      }
-    });
-    
-    if (error) {
-      toast({
-        title: "Erreur d'inscription",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Inscription réussie",
-        description: "Vérifiez votre email pour confirmer votre compte"
-      });
-    }
-    
-    return { error };
-  };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -141,7 +113,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     session,
     loading,
     signIn,
-    signUp,
     signOut,
     isAdmin,
   };
