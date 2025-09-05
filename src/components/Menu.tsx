@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { UtensilsCrossed, Coffee, IceCream, Star, Soup } from 'lucide-react';
 import { useMenuItems } from '@/hooks/useMenuItems';
@@ -6,7 +6,7 @@ import { useMenuCategories } from '@/hooks/useMenuCategories';
 
 const Menu = () => {
   const { menuItems, loading } = useMenuItems();
-  const { categories } = useMenuCategories();
+  const { categories, loading: categoriesLoading } = useMenuCategories();
   const [activeCategory, setActiveCategory] = useState('');
 
   // Icônes par catégorie
@@ -20,11 +20,13 @@ const Menu = () => {
   };
 
   // Sélectionner automatiquement la première catégorie au chargement
-  if (categories.length > 0 && !activeCategory) {
-    setActiveCategory(categories[0].id);
-  }
+  useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0].id);
+    }
+  }, [categories, activeCategory]);
 
-  if (loading) {
+  if (loading || categoriesLoading) {
     return (
       <section id="menu" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -33,6 +35,10 @@ const Menu = () => {
       </section>
     );
   }
+
+  console.log('Categories:', categories);
+  console.log('Menu items:', menuItems);
+  console.log('Active category:', activeCategory);
 
   // Filtrer les plats disponibles de la catégorie active
   const activeMenuItems = menuItems.filter(
