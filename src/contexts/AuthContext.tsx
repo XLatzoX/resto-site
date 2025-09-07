@@ -33,21 +33,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Check if user is admin
-          setTimeout(async () => {
+          // Check if user is admin with proper error handling
+          const checkAdminStatus = async () => {
             try {
-              const { data: profile } = await supabase
+              const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('role')
                 .eq('id', session.user.id)
                 .single();
+              
+              if (error) {
+                console.log('Error checking admin status:', error);
+                setIsAdmin(false);
+                return;
+              }
               
               setIsAdmin(profile?.role === 'admin');
             } catch (error) {
               console.log('Error checking admin status:', error);
               setIsAdmin(false);
             }
-          }, 0);
+          };
+          
+          checkAdminStatus();
         } else {
           setIsAdmin(false);
         }
@@ -57,11 +65,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
     );
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Check initial admin status
+          try {
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+              
+            if (!error && profile) {
+              setIsAdmin(profile.role === 'admin');
+            } else {
+              setIsAdmin(false);
+            }
+          } catch (error) {
+            console.log('Error checking initial admin status:', error);
+            setIsAdmin(false);
+          }
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.log('Error getting initial session:', error);
+        setLoading(false);
+      }
+    };
+    
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);

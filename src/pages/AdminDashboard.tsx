@@ -10,13 +10,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import MenuManagement from '@/components/admin/MenuManagement';
 import ReservationsManagement from '@/components/admin/ReservationsManagement';
 import ReviewsManagement from '@/components/admin/ReviewsManagement';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
   const { user, session, loading, signIn, signOut, isAdmin } = useAuth();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('menu');
+  const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
