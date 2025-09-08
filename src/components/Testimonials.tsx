@@ -1,50 +1,52 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Quote } from 'lucide-react';
+import { useReviews } from '@/hooks/useReviews';
 
 const Testimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { reviews, loading, error } = useReviews();
 
-  const baseTestimonials = [
+  // Fallback testimonials si pas d'avis dans la DB
+  const fallbackTestimonials = [
     {
-      id: 1,
+      id: "fallback-1",
       name: "Sacky Mall",
-      text: "Si j'avais découvert AfriSpot plus tôt, j'aurais tout l'argent du pays dans leur filet de boeuf...",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      featured: false
+      comment: "Si j'avais découvert AfriSpot plus tôt, j'aurais tout l'argent du pays dans leur filet de boeuf...",
+      rating: 5,
+      approved: true,
+      featured: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
-      id: 2,
+      id: "fallback-2", 
       name: "Moustapha Name",
-      text: "J'en ai mangé du Yassa, mais chez AfriSpot c'est un autre niveau... J'en ai versé des larmes. Best Yassa de la ville je vous assure !",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b13c?w=100&h=100&fit=crop&crop=face",
-      featured: true
+      comment: "J'en ai mangé du Yassa, mais chez AfriSpot c'est un autre niveau... J'en ai versé des larmes. Best Yassa de la ville je vous assure !",
+      rating: 5,
+      approved: true,
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
-      id: 3,
-      name: "Khady Mbarane",
-      text: "Le meilleur spot de Dakar pour un date. Je me demande qui je vais ramener cette semaine...",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
-      featured: false
-    },
-    {
-      id: 4,
-      name: "Omar Diallo",
-      text: "Une expérience culinaire exceptionnelle ! L'ambiance, le service, la qualité des plats... tout est parfait chez AfriSpot.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      featured: false
-    },
-    {
-      id: 5,
-      name: "Awa Seck",
-      text: "Enfin un restaurant qui valorise notre cuisine sénégalaise avec une touche moderne. Je recommande vivement !",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-      featured: false
+      id: "fallback-3",
+      name: "Khady Mbarane", 
+      comment: "Le meilleur spot de Dakar pour un date. Je me demande qui je vais ramener cette semaine...",
+      rating: 4,
+      approved: true,
+      featured: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   ];
 
-  // Dupliquer les témoignages pour éviter les espaces vides lors du défilement
-  const testimonials = [...baseTestimonials, ...baseTestimonials.map(t => ({ ...t, id: t.id + 10 }))];
+  // Utiliser les vraies reviews si disponibles, sinon fallback
+  const approvedReviews = reviews.filter(review => review.approved);
+  const displayReviews = approvedReviews.length > 0 ? approvedReviews : fallbackTestimonials;
+
+  // Dupliquer pour éviter les espaces vides lors du défilement
+  const testimonials = [...displayReviews, ...displayReviews.map(t => ({ ...t, id: t.id + '-dup' }))];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,6 +64,16 @@ const Testimonials = () => {
     }
     return visible;
   };
+
+  if (loading) {
+    return (
+      <section id="testimonials" className="py-20 bg-muted/20">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse">Chargement des témoignages...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="testimonials" className="py-20 bg-muted/20 relative overflow-hidden">
@@ -106,19 +118,16 @@ const Testimonials = () => {
 
                   {/* Texte du témoignage */}
                   <blockquote className="text-lg leading-relaxed mb-8 italic">
-                    "{testimonial.text}"
+                    "{testimonial.comment}"
                   </blockquote>
 
                   {/* Profil */}
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-current/20">
+                    <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-current/20 bg-primary/20 flex items-center justify-center">
                       <img 
-                        src={testimonial.avatar} 
+                        src={`https://ui-avatars.com/api/?name=${testimonial.name}&background=d4af37&color=fff`}
                         alt={testimonial.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${testimonial.name}&background=d4af37&color=fff`;
-                        }}
                       />
                     </div>
                     <div>

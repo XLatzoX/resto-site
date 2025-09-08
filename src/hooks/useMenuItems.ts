@@ -28,6 +28,7 @@ export const useMenuItems = () => {
   const fetchMenuItems = async () => {
     try {
       setLoading(true);
+      console.log('Fetching menu items...');
       const { data, error } = await supabase
         .from('menu_items')
         .select(`
@@ -36,11 +37,16 @@ export const useMenuItems = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
+      console.log('Menu items fetched:', data?.length || 0, 'items');
       setMenuItems(data || []);
       setError(null);
     } catch (err: any) {
+      console.error('Error fetching menu items:', err);
       setError(err.message);
       toast({
         title: "Erreur",

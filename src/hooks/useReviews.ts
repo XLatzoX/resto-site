@@ -23,6 +23,7 @@ export const useReviews = () => {
   const fetchReviews = async (onlyApproved = false) => {
     try {
       setLoading(true);
+      console.log('Fetching reviews, onlyApproved:', onlyApproved);
       let query = supabase
         .from('reviews')
         .select('*')
@@ -34,11 +35,16 @@ export const useReviews = () => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
+      console.log('Reviews fetched:', data?.length || 0, 'reviews');
       setReviews(data || []);
       setError(null);
     } catch (err: any) {
+      console.error('Error fetching reviews:', err);
       setError(err.message);
       toast({
         title: "Erreur",
