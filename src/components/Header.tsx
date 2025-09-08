@@ -1,21 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Utensils, Settings, User, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Menu, X, Utensils } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const { user, isAdmin, signOut } = useAuth();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -72,58 +60,14 @@ const Header = () => {
             </button>
           </nav>
 
-          {/* Bouton Réservez et Auth */}
-          <div className="hidden md:flex items-center space-x-2">
+          {/* Bouton Réservez */}
+          <div className="hidden md:flex items-center">
             <Button 
               onClick={() => scrollToSection('reservation')}
               className="btn-primary"
             >
               Réservez
             </Button>
-            
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Button
-                    onClick={() => navigate('/gestion-restaurant-dakar-admin-2024')}
-                    variant="ghost"
-                    size="icon"
-                    className="opacity-70 hover:opacity-100 transition-opacity"
-                  >
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                )}
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate('/gestion-restaurant-dakar-admin-2024')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Administration
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={() => signOut()}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Se déconnecter
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="outline"
-              >
-                Connexion
-              </Button>
-            )}
           </div>
 
           {/* Menu Mobile */}
